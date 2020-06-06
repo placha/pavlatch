@@ -1,0 +1,8 @@
+<?php
+
+return [
+    'env' => 'dev',
+    'dir' => 'storage',
+    'secureKey' => 'CHANGE-ME',
+    'imageOnly' => true,
+];
