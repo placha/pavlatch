@@ -12,8 +12,9 @@ Only two features:
 include __DIR__ . '/vendor/autoload.php';
 
 new \pavlatch\Server([
+    'dir' => 'storage',
     'secureKey' => '6a4068f2-2cde-494d-90e1-08ba5827a677',
-    'imageOnly' => true
-    ]);
+    'imageOnly' => true,
+]);
 
 ```
