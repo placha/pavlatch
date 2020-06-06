@@ -1,0 +1,21 @@
+{
+  "name": "placha/pavlatch",
+  "description": "Simple file storage API",
+  "minimum-stability": "beta",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Kacper Placha",
+      "email": "kacper@placha.pl"
+    }
+  ],
+  "require": {
+    "php": ">=7.3.0",
+    "guzzlehttp/guzzle": "^6.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "pavlatch\\": "pavlatch"
+    }
+  }
+}
