@@ -6,19 +6,18 @@ use pavlatch\Exception\ServerException;
 
 class Server
 {
-
-
     /**
      * @var string
      */
     private $dir;
 
+    private $inputName;
     private $imageOnly;
 
     public function __construct(array $config)
     {
         $this->dir = $config['dir'] ?? __DIR__ . '/../storage';
-        $inputName = $config['inputName'] ?? 'FileContents';
+        $this->inputName = $config['inputName'] ?? 'FileContents';
         $this->imageOnly = $config['imageOnly'] ?? true;
         $secureKey = $config['secureKey'] ?? null;
 
@@ -30,12 +29,27 @@ class Server
             throw new ServerException('Forbidden');
         }
 
+        $this->init();
+    }
 
-        if (!isset($_FILES[$inputName])) {
+    private function init(): void
+    {
+        if ($_POST['action'] === 'exist') {
+            $filename = str_replace('..', '', trim($_POST['filename']));
+            $file = $this->dir . '/' . $filename;
+            if (is_readable($file)) {
+                http_response_code(204);
+                return;
+            }
+            http_response_code(404);
+            return;
+        }
+
+        if (!isset($_FILES[$this->inputName])) {
             throw new ServerException('Not files set');
         }
 
-        $files = $_FILES[$inputName];
+        $files = $_FILES[$this->inputName];
         if (!\is_array($files)) {
             throw new ServerException('Not array');
         }
@@ -71,5 +85,7 @@ class Server
         if (!$moveResult) {
             throw new ServerException('Cannot save uploaded file.');
         }
+
+        http_response_code(201);
     }
 }
