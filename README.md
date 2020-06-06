@@ -1,6 +1,6 @@
 # Pavlatch - extremely simple storage api
 
-I wanted replace AWS S3 with some cheapper solution for small project.
+I wanted to replace AWS S3 with some cheaper solution for small project.
 
 Only two features:
 - receiving file and store it locally
