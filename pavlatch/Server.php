@@ -34,7 +34,7 @@ class Server
 
     private function init(): void
     {
-        if ($_POST['action'] === 'exist') {
+        if (($_POST['action'] ?? null) === 'exist') {
             $filename = str_replace('..', '', trim($_POST['filename']));
             $file = $this->dir . '/' . $filename;
             if (is_readable($file)) {
@@ -64,7 +64,7 @@ class Server
             throw new ServerException('Upload error: ' . $e->getMessage());
         }
 
-        if (false&&!$this->imageOnly) {
+        if ($this->imageOnly) {
             if (!$receivedFile->isAllowedMimeType()) {
                 throw new ServerException('Not allowed mime type');
             }
