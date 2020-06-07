@@ -2,12 +2,10 @@
 
 include __DIR__ . '/vendor/autoload.php';
 
-$config = include __DIR__ . '/config.php';
+$config = require __DIR__ . '/config.php';
 
-if ($config['env'] === 'dev') {
-    ini_set('display_errors', '1');
-    ini_set('display_startup_errors', '1');
-    error_reporting(E_ALL);
+try {
+    new \pavlatch\Server($config);
+} catch (\pavlatch\Exception\ServerException $e) {
+    echo $e->getMessage();
 }
-
-new \pavlatch\Server($config);

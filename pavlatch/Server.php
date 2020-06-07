@@ -14,6 +14,13 @@ class Server
     private $inputName;
     private $imageOnly;
 
+    /**
+     * Server constructor.
+     *
+     * @param array $config
+     *
+     * @throws ServerException
+     */
     public function __construct(array $config)
     {
         $this->dir = $config['dir'] ?? __DIR__ . '/../storage';
@@ -22,16 +29,22 @@ class Server
         $secureKey = $config['secureKey'] ?? null;
 
         if ($secureKey === null) {
+            http_response_code(500);
             throw new ServerException('Invalid configuration');
         }
 
         if ($_POST['secureKey'] !== $secureKey) {
+            http_response_code(400);
             throw new ServerException('Forbidden');
         }
 
+        http_response_code(500);
         $this->init();
     }
 
+    /**
+     * @throws ServerException
+     */
     private function init(): void
     {
         if (($_POST['action'] ?? null) === 'exist') {
