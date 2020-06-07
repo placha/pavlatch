@@ -6,6 +6,10 @@ Only two features:
 - receiving file and store it locally
 - checking if file already exist
 
+## Requirements
+
+Space on hosting with php :smile:
+
 ## index.php
 
 ```
