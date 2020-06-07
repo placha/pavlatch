@@ -1,7 +1,7 @@
 {
   "name": "placha/pavlatch",
   "description": "Simple file storage API",
-  "minimum-stability": "beta",
+  "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
     {
