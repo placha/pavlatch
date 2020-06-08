@@ -11,8 +11,20 @@ class Server
      */
     private $dir;
 
+    /**
+     * @var string
+     */
     private $inputName;
+
+    /**
+     * @var bool
+     */
     private $imageOnly;
+
+    /**
+     * @var Response
+     */
+    private $response;
 
     /**
      * Server constructor.
@@ -29,46 +41,58 @@ class Server
         $secureKey = $config['secureKey'] ?? null;
 
         if ($secureKey === null) {
-            http_response_code(500);
             throw new ServerException('Invalid configuration');
         }
 
-        if ($_POST['secureKey'] !== $secureKey) {
-            http_response_code(400);
-            throw new ServerException('Forbidden');
+        if (($_POST['secureKey'] ?? null) !== $secureKey) {
+            throw new ServerException('Forbidden', 400);
         }
 
-        http_response_code(500);
-        $this->init();
+        $this->response = $this->init();
     }
 
     /**
      * @throws ServerException
      */
-    private function init(): void
+    private function init(): Response
     {
-        if (($_POST['action'] ?? null) === 'exist') {
-            $filename = str_replace('..', '', trim($_POST['filename']));
-            $file = $this->dir . '/' . $filename;
-            if (is_readable($file)) {
-                http_response_code(204);
-                return;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (($_POST['action'] ?? null) === 'exist') {
+                return $this->existAction();
             }
-            http_response_code(404);
-            return;
+            return $this->uploadAction();
         }
 
+        throw new ServerException('Invalid method', 404);
+    }
+
+    private function existAction(): Response
+    {
+        $filename = str_replace('..', '', trim($_POST['filename']));
+        $file = $this->dir . '/' . $filename;
+        if (is_readable($file)) {
+            return new Response('File found', 200);
+        }
+        return new Response('File not found', 404);
+    }
+
+    /**
+     * @return Response
+     * @throws ServerException
+     */
+    private function uploadAction(): Response
+    {
         if (!isset($_FILES[$this->inputName])) {
-            throw new ServerException('Not files set');
+            throw new ServerException('Not files set', 409);
         }
 
         $files = $_FILES[$this->inputName];
         if (!\is_array($files)) {
-            throw new ServerException('Not array');
+            throw new ServerException('Not array', 409);
         }
 
         if (!isset($files['error'])) {
-            throw new ServerException('Wrong array');
+            throw new ServerException('Wrong array', 409);
         }
 
         try {
@@ -79,11 +103,11 @@ class Server
 
         if ($this->imageOnly) {
             if (!$receivedFile->isAllowedMimeType()) {
-                throw new ServerException('Not allowed mime type');
+                throw new ServerException('Not allowed mime type', 409);
             }
 
             if (!$receivedFile->isImage()) {
-                throw new ServerException('Is not a image');
+                throw new ServerException('Is not a image', 409);
             }
         }
 
@@ -99,6 +123,11 @@ class Server
             throw new ServerException('Cannot save uploaded file.');
         }
 
-        http_response_code(201);
+        return new Response('success', 201);
+    }
+
+    public function getResponse(): Response
+    {
+        return $this->response;
     }
 }
