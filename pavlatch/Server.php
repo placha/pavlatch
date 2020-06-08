@@ -14,6 +14,11 @@ class Server
     /**
      * @var string
      */
+    private $secureKey;
+
+    /**
+     * @var string
+     */
     private $inputName;
 
     /**
@@ -38,32 +43,49 @@ class Server
         $this->dir = $config['dir'] ?? __DIR__ . '/../storage';
         $this->inputName = $config['inputName'] ?? 'FileContents';
         $this->imageOnly = $config['imageOnly'] ?? true;
-        $secureKey = $config['secureKey'] ?? null;
+        $this->secureKey = $config['secureKey'] ?? null;
 
-        if ($secureKey === null) {
+        if ($this->secureKey === null) {
             throw new ServerException('Invalid configuration');
         }
 
-        if (($_POST['secureKey'] ?? null) !== $secureKey) {
-            throw new ServerException('Forbidden', 400);
-        }
-
-        $this->response = $this->init();
+        $this->run();
     }
 
     /**
      * @throws ServerException
      */
-    private function init(): Response
+    private function run(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (($_POST['action'] ?? null) === 'exist') {
-                return $this->existAction();
+            if (($_POST['secureKey'] ?? null) !== $this->secureKey) {
+                throw new ServerException('Forbidden', 400);
             }
-            return $this->uploadAction();
+            if (($_POST['action'] ?? null) === 'exist') {
+                $this->response = $this->existAction();
+                return;
+            }
+            $this->response = $this->uploadAction();
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $this->response = $this->getAction();
+            return;
         }
 
         throw new ServerException('Invalid method', 404);
+    }
+
+    private function getAction(): Response
+    {
+        $filename = str_replace('..', '', trim($_GET['filename']));
+        $file = $this->dir . '/' . $filename;
+        if (is_readable($file)) {
+            header('Location: ' . $file);
+            exit;
+        }
+        return new Response('File not found', 404);
     }
 
     private function existAction(): Response
