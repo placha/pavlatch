@@ -31,10 +31,10 @@ class Response
         header('Content-Type: application/json');
         http_response_code($this->code);
 
-        return '{
-            "code": ' . $this->code . ',
-            "message": "' . $this->message . '",
-            "error": "' . $this->error . '"
-        }';
+        return '{' .
+            '"code": ' . $this->code . ',' .
+            '"message": "' . $this->message . '",' .
+            '"error": "' . $this->error . '"' .
+            '}';
     }
 }
