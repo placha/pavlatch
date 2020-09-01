@@ -93,7 +93,7 @@ class Server
         $filename = str_replace('..', '', trim($_POST['filename']));
         $file = $this->dir . '/' . $filename;
         if (is_readable($file)) {
-            return new Response('File found', 200);
+            return new Response('File found', 204);
         }
         return new Response('File not found', 404);
     }
