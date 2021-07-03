@@ -3,6 +3,7 @@
   "description": "Simple file storage API",
   "minimum-stability": "stable",
   "license": "MIT",
+  "version": "2.0.0",
   "authors": [
     {
       "name": "Kacper Placha",
@@ -10,7 +11,7 @@
     }
   ],
   "require": {
-    "php": ">=7.3.0"
+    "php": ">=7.4"
   },
   "autoload": {
     "psr-4": {
