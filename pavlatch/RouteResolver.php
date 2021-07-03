@@ -37,9 +37,9 @@ class RouteResolver
     private function routes(): array
     {
         return [
-            new Route('GET', 'count', false),
+            new Route('GET', 'thumb', false),
             new Route('GET', 'view', false),
-            new Route('GET', 'exist', false),
+            new Route('GET', 'count', false),
         ];
     }
 
@@ -51,6 +51,9 @@ class RouteResolver
     {
         if ($this->requestMethod === 'GET') {
             return new Route('GET', 'get', false);
+        }
+        if ($this->requestMethod === 'HEAD') {
+            return new Route('HEAD', 'exist', false);
         }
         if ($this->requestMethod === 'POST') {
             return new Route('POST', 'upload', true);

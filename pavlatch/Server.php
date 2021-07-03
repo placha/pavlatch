@@ -3,6 +3,7 @@
 namespace pavlatch;
 
 use FilesystemIterator;
+use Intervention\Image\Image;
 use pavlatch\Exception\ServerException;
 
 class Server
@@ -12,6 +13,8 @@ class Server
     private string $inputName;
     private bool $imageOnly;
     private Response $response;
+    private ?int $resizeWidth;
+    private ?int $resizeHeight;
 
     public function __construct(array $config)
     {
@@ -19,6 +22,7 @@ class Server
         $this->inputName = $config['inputName'] ?? 'FileContents';
         $this->imageOnly = $config['imageOnly'] ?? true;
         $this->secureKey = $config['secureKey'];
+        [$this->resizeWidth, $this->resizeHeight] = $config['resize'];
     }
 
     /**
@@ -47,6 +51,26 @@ class Server
         }
 
         header('Location: ' . $file);
+        exit;
+    }
+
+    /** @noinspection PhpUnusedPrivateMethodInspection */
+    /**
+     * @throws ServerException
+     */
+    private function thumbAction(): void
+    {
+        $file = $this->getReadableFile();
+        if ($file === null) {
+            throw new ServerException('File not found', 404);
+        }
+
+        $img = (new Image)->make($file);
+        $img->resize($this->resizeWidth, $this->resizeHeight, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+        echo $img->response();
         exit;
     }
 
