@@ -4,8 +4,5 @@ return [
     'dir' => 'storage',
     'secureKey' => 'CHANGE-ME',
     'imageOnly' => true,
-    'resize' => [
-        'width' => 400,
-        'height' => 400,
-    ],
+    'resize' => [400, 400],
 ];

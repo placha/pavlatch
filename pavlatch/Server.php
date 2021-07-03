@@ -3,7 +3,7 @@
 namespace pavlatch;
 
 use FilesystemIterator;
-use Intervention\Image\Image;
+use Intervention\Image\ImageManagerStatic as Image;
 use pavlatch\Exception\ServerException;
 
 class Server
@@ -65,11 +65,12 @@ class Server
             throw new ServerException('File not found', 404);
         }
 
-        $img = (new Image)->make($file);
+        $img = Image::make($file);
         $img->resize($this->resizeWidth, $this->resizeHeight, function ($constraint) {
             $constraint->aspectRatio();
             $constraint->upsize();
         });
+
         echo $img->response();
         exit;
     }

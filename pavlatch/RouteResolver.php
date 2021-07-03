@@ -19,13 +19,12 @@ class RouteResolver
     public function getRoute(): Route
     {
         foreach ($this->routes() as $route) {
-            if ($this->requestMethod !== $route->getMethod()) {
-                continue;
+            if (
+                $this->requestMethod === $route->getMethod() &&
+                ($_GET['action'] ?? null) === $route->getActionName()
+            ) {
+                return $route;
             }
-            if (($_POST['action'] ?? $_GET['action'] ?? null) !== $route->getActionName()) {
-                continue;
-            }
-            return $route;
         }
 
         return $this->getDefaultRoute();
