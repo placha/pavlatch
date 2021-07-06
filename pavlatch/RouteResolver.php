@@ -13,15 +13,21 @@ class RouteResolver
         $this->requestMethod = $_SERVER['REQUEST_METHOD'];
     }
 
+    public function getRouteSection(int $section): ?string
+    {
+        return explode('/', $_GET['route'])[$section] ?? null;
+    }
+
     /**
      * @throws ServerException
      */
     public function getRoute(): Route
     {
+        $action = $this->getRouteSection(1) ?? $_GET['action'] ?? null;
         foreach ($this->routes() as $route) {
             if (
                 $this->requestMethod === $route->getMethod() &&
-                ($_GET['action'] ?? null) === $route->getActionName()
+                $action === $route->getActionName()
             ) {
                 return $route;
             }

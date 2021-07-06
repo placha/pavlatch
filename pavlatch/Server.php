@@ -15,6 +15,7 @@ class Server
     private Response $response;
     private ?int $resizeWidth;
     private ?int $resizeHeight;
+    private RouteResolver $routeResolver;
 
     public function __construct(array $config)
     {
@@ -23,6 +24,7 @@ class Server
         $this->imageOnly = $config['imageOnly'] ?? true;
         $this->secureKey = $config['secureKey'];
         [$this->resizeWidth, $this->resizeHeight] = $config['resize'];
+        $this->routeResolver = new RouteResolver();
     }
 
     /**
@@ -30,8 +32,7 @@ class Server
      */
     public function run(): void
     {
-        $routeResolver = new RouteResolver();
-        $route = $routeResolver->getRoute();
+        $route = $this->routeResolver->getRoute();
         if (!$route->isAllowed($this->secureKey)) {
             throw new ServerException('Forbidden', 400);
         }
@@ -65,13 +66,20 @@ class Server
             throw new ServerException('File not found', 404);
         }
 
+        $resizeWidth = $this->routeResolver->getRouteSection(2) ?? (string)$this->resizeWidth;
+        $resizeWidth = $resizeWidth === 'null' ? null : (int)$resizeWidth;
+        $resizeWidth = $resizeWidth > 8000 || $resizeWidth < 1 ? $this->resizeWidth : $resizeWidth;
+
+        $resizeHeight = $this->routeResolver->getRouteSection(3) ?? (string)$this->resizeHeight;
+        $resizeHeight = $resizeHeight === 'null' ? null : (int)$resizeHeight;
+        $resizeHeight = $resizeHeight > 8000 || $resizeHeight < 1 ? $this->resizeHeight : $resizeHeight;
+
         $img = Image::make($file);
-        $img->resize($this->resizeWidth, $this->resizeHeight, function ($constraint) {
+        $img->resize($resizeWidth, $resizeHeight, function ($constraint) {
             $constraint->aspectRatio();
             $constraint->upsize();
         });
-
-        echo $img->response();
+        echo $img->encode('webp')->response();
         exit;
     }
 
@@ -179,7 +187,8 @@ class Server
 
     private function getFilename(): string
     {
-        return str_replace('..', '', trim($_GET['filename']));
+        $filename = explode('/', $_GET['route'])[0];
+        return str_replace('..', '', trim($filename));
     }
 
     public function getResponse(): Response
